@@ -4,7 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 
-public class ClientGUI
+public class ChatClientGui
 {
 
 	private JFrame frame;
@@ -20,7 +20,7 @@ public class ClientGUI
 			{
 				try
 				{
-					ClientGUI window = new ClientGUI();
+					ChatClientGui window = new ChatClientGui();
 					window.frame.setVisible(true);
 				} catch (Exception e)
 				{
@@ -33,7 +33,7 @@ public class ClientGUI
 	/**
 	 * Create the application.
 	 */
-	public ClientGUI()
+	public ChatClientGui()
 	{
 		initialize();
 	}

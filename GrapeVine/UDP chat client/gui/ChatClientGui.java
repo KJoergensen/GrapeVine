@@ -1,9 +1,9 @@
 package gui;
 
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-
 import java.awt.List;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,16 +11,16 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
 import client.ClientListener;
 
 public class ChatClientGui
@@ -71,6 +71,9 @@ public class ChatClientGui
 		frame = new JFrame();
 		frame.setBounds(100, 100, 596, 533);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(
+				getClass().getResource("GrapeVine2.png")));
+		frame.setTitle("GrapeVine Chatprogram");
 		frame.getContentPane().setLayout(null);
 		
 		connectionList = new List();

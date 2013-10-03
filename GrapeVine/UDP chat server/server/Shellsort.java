@@ -43,14 +43,6 @@ public class Shellsort
 		}
 		return returnString;
 	}
-	
-//	private static void printArray(ArrayList<String> al)
-//	{
-//		for (String s : al)
-//		{
-//			System.out.println(s);
-//		}
-//	}
 
 	private static int getIndex(char letter)
 	{
@@ -113,7 +105,6 @@ public class Shellsort
 		if (letter == 'Å' || letter == 'å')
 			return 28;
 		return 29;
-//		return letter - 'a';
 	}
 
 	private static void addItem(String[] s, String item)

@@ -11,8 +11,6 @@ import gui.ChatServerGui;
 public class ServerController
 {
 	private HashMap<Integer, User> userMap = new HashMap<>();
-	private ArrayList<User> userList = new ArrayList<User>();
-	private ArrayList<User> tempUserList = new ArrayList<User>();
 	private Thread ping;
 	private DatagramSocket UDPsocket;
 	private ServerListener listener;
@@ -43,11 +41,6 @@ public class ServerController
 		return UDPsocket;
 	}
 	
-	public void addUserToList(User user)
-	{
-		userList.add(user);
-	}
-	
 	public void addUserToMap(User user)
 	{
 		userMap.put(user.getPortNr(), user);
@@ -57,11 +50,6 @@ public class ServerController
 	{
 		return userMap.get(port);
 	}
-	
-	public ArrayList<User> getUserList()
-	{
-		return userList;
-	}
 
 	public HashMap<Integer, User> getUserMap()
 	{
@@ -70,28 +58,22 @@ public class ServerController
 
 	public void startServer(int port)
 	{
-		// Setup socket
-		// Create serverListener
 		try
 		{
 			UDPsocket = new DatagramSocket(port);
 			listener = new ServerListener();
+			ping = new Thread(new Ping());
 			listener.start();
+			ping.start();
+			
+			GUI.addMessage("Server running on socket "+port);
+			GUI.btnStartServer.setVisible(false);
+			GUI.btnStopServer.setVisible(true);
 		} catch (SocketException e)
 		{
+			GUI.addMessage("Unable to start server on socket "+port+". Please try another");
 			e.printStackTrace();
 		}
-	}
-	
-	public void startPing()
-	{
-		ping = new Thread(new Ping());
-		ping.start();
-	}
-	
-	public void addUserRespond(User user)
-	{
-		tempUserList.add(user);
 	}
 	
 	public void addUserRespond(int port)
@@ -99,37 +81,38 @@ public class ServerController
 		userMap.get(port).setLastSeen();
 	}
 	
-	public void updateUserList()
-	{
-		userList.removeAll(userList);
-		for(User user : tempUserList)
-		{
-			userList.add(user);
-		}
-		tempUserList.removeAll(tempUserList);
-	}
-	
 	public void updateUserMap()
 	{
 		ArrayList<Integer> offlineList = new ArrayList<>();
 		for(Integer port : userMap.keySet())
-		{
 			if(!userMap.get(port).isOnline())
 				offlineList.add(port);
-		}
-		for(Integer offlineUser : offlineList)
-		{
-			GUI.addMessage(userMap.get(offlineUser).getName()+" has disconnected");
-			userMap.remove(offlineUser);
-		}
+		for(Integer userPort: offlineList)
+			removeUser(userPort);
+	}
+	
+	public void removeUser(Integer userPort)
+	{
+		GUI.addMessage(userMap.get(userPort).getName()+" has disconnected");
+		userMap.remove(userPort);
 	}
 
 	public void stopServer()
 	{
-		UDPsocket.close();
-		userList.removeAll(userList);
-		tempUserList.removeAll(tempUserList);
-		listener.interrupt();
-		ping.interrupt();
+		try{
+			UDPsocket.close();
+			userMap.clear();
+			listener.interrupt();
+			ping.interrupt();
+			
+			GUI.addMessage("Server stopped");
+			GUI.btnStartServer.setVisible(true);
+			GUI.btnStopServer.setVisible(false);
+		}
+		catch(Exception e)
+		{
+			GUI.addMessage("Unable to stop server: "+e.getMessage());
+			e.printStackTrace();
+		}
 	}
 }

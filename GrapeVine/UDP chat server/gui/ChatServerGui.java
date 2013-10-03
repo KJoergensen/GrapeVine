@@ -1,38 +1,32 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.List;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import controller.ServerController;
 
-import java.awt.List;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
 public class ChatServerGui
 {
 
 	public JFrame frame;
-	public ArrayList<String> clientNameArray;
-	public ArrayList<InetAddress> clientAddressArray;
-	public ArrayList<Integer> clientPortArray;
 	private JTextField txtSocket;
 	private List chatList;
-	private JButton btnStopServer;
-	private JButton btnStartServer;
+	public JButton btnStopServer;
+	public JButton btnStartServer;
 
 	/**
 	 * Create the application.
@@ -40,9 +34,6 @@ public class ChatServerGui
 	public ChatServerGui()
 	{
 		initialize();
-		clientNameArray = new ArrayList<String>();
-		clientAddressArray = new ArrayList<InetAddress>();
-		clientPortArray = new ArrayList<Integer>();
 	}
 
 	/**
@@ -67,13 +58,7 @@ public class ChatServerGui
 			lblIPAddress = new JLabel("Your IP Address: "+ip);
 		} catch (IOException e1)
 		{
-			try
-			{
-				lblIPAddress = new JLabel("Your IP Address: "+InetAddress.getLocalHost().getHostAddress());
-			} catch (UnknownHostException e2)
-			{
-				lblIPAddress = new JLabel("Your IP Address: Unknown");
-			}
+			lblIPAddress = new JLabel("Your IP Address: Unknown");
 		}
 		lblIPAddress.setBounds(10, 11, 213, 14);
 		
@@ -96,19 +81,7 @@ public class ChatServerGui
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				try
-				{
-					ServerController.getInstance().startServer(Integer.parseInt(txtSocket.getText()));
-					addMessage("Server running on socket "+txtSocket.getText());
-					ServerController.getInstance().startPing();
-					
-					btnStartServer.setVisible(false);
-					btnStopServer.setVisible(true);
-				} catch (NumberFormatException e)
-				{
-					System.out.println("Unable to start server on socket: "+txtSocket.getText());
-//					e.printStackTrace();
-				}
+				ServerController.getInstance().startServer(Integer.parseInt(txtSocket.getText()));
 			}
 		});
 		btnStartServer.setBounds(304, 39, 110, 23);
@@ -132,9 +105,6 @@ public class ChatServerGui
 			public void actionPerformed(ActionEvent e) 
 			{
 				ServerController.getInstance().stopServer();
-				addMessage("Server stopped");
-				btnStartServer.setVisible(true);
-				btnStopServer.setVisible(false);
 			}
 		});
 		btnStopServer.setBounds(304, 39, 110, 23);

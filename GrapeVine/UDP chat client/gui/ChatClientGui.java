@@ -299,8 +299,8 @@ public class ChatClientGui
 	
 	public void updateClientList(ArrayList<String> nameList)
 	{
-		clearConnectionList();
 		String selectedName = connectionList.getSelectedItem();
+		clearConnectionList();
 		int selectedIndex=-1;
 		for(String name : nameList)
 		{

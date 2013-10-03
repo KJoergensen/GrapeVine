@@ -117,14 +117,7 @@ public class ChatClientGui
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				boolean legal = true;
-				for(char c : txtName.getText().toLowerCase().toCharArray())
-				{
-					int tmp = c;
-					if(!(tmp > 96 && tmp < 123) || tmp==230 || tmp==248 || tmp==229) // Checking username letters
-						legal = false;
-				}
-				if(legal)
+				if(checkUsername(txtName.getText()))
 				{
 					try
 					{
@@ -342,5 +335,18 @@ public class ChatClientGui
 		}
 		if(selectedIndex!=-1)
 			connectionList.select(selectedIndex);
+	}
+	
+	public boolean checkUsername(String username)
+	{
+		if(username.isEmpty())
+			return false;
+		for(char c : username.toLowerCase().toCharArray())
+		{
+			int tmp = c;
+			if(!(tmp > 96 && tmp < 123) || tmp==230 || tmp==248 || tmp==229) // Checking username letters
+				return false;
+		}
+		return true;
 	}
 }

@@ -35,7 +35,7 @@ public class Shellsort
 	        }
 			for(String s : returnArr)
 				returnString +=" "+s;
-			System.out.println("returnString: "+returnString);
+//			System.out.println("returnString: "+returnString);
 		}
 		catch(Exception e)
 		{

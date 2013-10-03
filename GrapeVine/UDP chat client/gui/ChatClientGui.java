@@ -83,7 +83,7 @@ public class ChatClientGui
 		chatList.setBounds(10, 67, 432, 364);
 		frame.getContentPane().add(chatList);
 		
-		lblOnlineUsers = new JLabel("Online Users: 0");
+		lblOnlineUsers = new JLabel("Online User(s): 0");
 		lblOnlineUsers.setHorizontalAlignment(SwingConstants.CENTER);
 		lblOnlineUsers.setBounds(448, 47, 124, 14);
 		frame.getContentPane().add(lblOnlineUsers);
@@ -165,11 +165,22 @@ public class ChatClientGui
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				String message;
+				String message = "";
 				if(chboxPriv.isSelected())
 				{
-					message = "MSG PRIVATE "+txtName.getText()+" "+connectionList.getSelectedItem()+" "+txtChat.getText();
-					addMessage("Private message to "+connectionList.getSelectedItem()+": "+txtChat.getText());
+					int tries = 0;
+					while(tries<3)
+					{
+						String usernameTo = connectionList.getSelectedItem();
+						if(!usernameTo.equals(null))
+						{
+							message = "MSG PRIVATE "+txtName.getText()+" "+usernameTo+" "+txtChat.getText();
+							addMessage("Private message to "+usernameTo+": "+txtChat.getText());
+							break;
+						}
+						else
+							tries++;
+					}
 				}
 				else
 					message = "MSG PUBLIC "+txtName.getText()+" "+txtChat.getText();
@@ -300,6 +311,7 @@ public class ChatClientGui
 	
 	public void updateClientList(ArrayList<String> nameList)
 	{
+		lblOnlineUsers.setText("Online User(s): "+nameList.size());
 		String selectedName = connectionList.getSelectedItem();
 		clearConnectionList();
 		int selectedIndex=-1;

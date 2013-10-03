@@ -13,10 +13,11 @@ public class ServerListener extends Thread
 	private InetAddress IPaddress;
 	private int port;
 	byte[] byteArray;
+	ServerController sc;
 	
 	public ServerListener()
 	{
-		
+		sc = ServerController.getInstance();
 	}
 	
 	public void run()
@@ -39,8 +40,9 @@ public class ServerListener extends Thread
 
 				if(request.equals("PING"))
 				{
-					String username = st.nextToken().trim();
-					ServerController.getInstance().addUserRespond(new User(username, IPaddress, port));
+//					String username = st.nextToken().trim();
+					ServerController.getInstance().addUserRespond(port);
+//					ServerController.getInstance().addUserRespond(new User(username, IPaddress, port));
 				}
 				else if(request.equals("QUIT"))
 				{
@@ -58,11 +60,14 @@ public class ServerListener extends Thread
 					String username = st.nextToken().trim();
 					boolean userExist = false;
 					boolean usernameTaken = false;
-					for(User user : ServerController.getInstance().getUserList())
+					for(Integer userPort : sc.getUserMap().keySet())
 					{
-						if(user.getPortNr().equals(port))
+						if(port == userPort)
+						{
+							sc.addUserRespond(port);
 							userExist = true;
-						if(user.getName().equals(username))
+						}
+						if(sc.getUser(userPort).getName().equals(username))
 							usernameTaken = true;
 					}
 					if (usernameTaken)
@@ -70,8 +75,8 @@ public class ServerListener extends Thread
 					
 					else if(!userExist)
 					{
-						ServerController.getInstance().addUserRespond(new User(username, IPaddress, port));
 						reply("JOIN OK");
+						ServerController.getInstance().addUserToMap(new User(username, IPaddress, port));
 						ServerController.getInstance().getGUI().addMessage("New connection: "+username);
 					}else if(userExist)
 					{
@@ -116,18 +121,19 @@ public class ServerListener extends Thread
 	
 	public void sendPublicMessage(String from, String message) throws Exception
 	{
-		for(User user : ServerController.getInstance().getUserList())
+		for(Integer port : sc.getUserMap().keySet())
 		{
 			byteArray = (from+": "+message).getBytes("UTF-8");
-			sendPacket = new DatagramPacket(byteArray, byteArray.length, user.getIp(), user.getPortNr());
+			sendPacket = new DatagramPacket(byteArray, byteArray.length, sc.getUser(port).getIp(), port);
 			ServerController.getInstance().getUDPsocket().send(sendPacket);
 		}
 	}
 	
 	public void sendPrivateMessage(String from, String to, String message) throws Exception
 	{
-		for(User user : ServerController.getInstance().getUserList())
+		for(Integer port : sc.getUserMap().keySet())
 		{
+			User user = sc.getUser(port);
 			if(user.getName().equals(to))
 			{
 				byteArray = ("Private message from "+from+": "+message).getBytes("UTF-8");

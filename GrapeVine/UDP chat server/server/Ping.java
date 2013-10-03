@@ -12,10 +12,12 @@ public class Ping extends Thread
 	private final String PINGMSG = "PING";
 	private DatagramPacket sendPacket;
 	private byte[] byteArray;
+	private ServerController sc;
 	
 	public Ping()
 	{
 		byteArray = new byte[1024];
+		sc = ServerController.getInstance();
 	}
 	
 	public void run()
@@ -25,19 +27,18 @@ public class Ping extends Thread
 			while(true)
 			{
 				clearBytes();
-				for(User user : ServerController.getInstance().getUserList())
+				for(Integer port : ServerController.getInstance().getUserMap().keySet())
 				{
 					byteArray = PINGMSG.getBytes("UTF-8");
-					sendPacket = new DatagramPacket(byteArray, byteArray.length, user.getIp(), user.getPortNr());
-					ServerController.getInstance().getUDPsocket().send(sendPacket);
+					sendPacket = new DatagramPacket(byteArray, byteArray.length, sc.getUser(port).getIp(), port);
+					sc.getUDPsocket().send(sendPacket);
 				}
-				sleep(100);
+				sleep(200);
 				sendListToClients();
-				sleep(2500);
 			}
 		}catch(InterruptedException e)
 		{
-			System.out.println("InterruptedException in class Ping: Trying to interrupt sleeping thread");
+			System.out.println("InterruptedException in class Ping: Unable to interrupt sleeping thread");
 			interrupt();
 //			e.printStackTrace();
 		} catch (UnsupportedEncodingException e)
@@ -52,25 +53,21 @@ public class Ping extends Thread
 	
 	public void sendListToClients() throws UnsupportedEncodingException, IOException
 	{
-		ServerController.getInstance().updateUserList();
-		String clientList = "CLIENTS";
+		sc.updateUserMap();
 		ArrayList<String> clientList2 = new ArrayList<String>();
 		int length = 4;
-		for(User user : ServerController.getInstance().getUserList())
+		for(Integer port : sc.getUserMap().keySet())
 		{
-//			clientList += " "+user.getName();
+			User user = sc.getUser(port);
 			clientList2.add(user.getName().trim());
 			if(user.getName().length()<length)
 				length = user.getName().length();
 		}
-		clientList = Shellsort.sort(clientList2, length);
-//		System.out.println(clientList);
-//		System.out.println("List2="+test);
-		for(User user : ServerController.getInstance().getUserList())
+		for(Integer port : sc.getUserMap().keySet())
 		{
 			clearBytes();
-			byteArray = clientList.getBytes("UTF-8");
-			sendPacket = new DatagramPacket(byteArray, byteArray.length, user.getIp(), user.getPortNr());
+			byteArray = Shellsort.sort(clientList2, length).getBytes("UTF-8");
+			sendPacket = new DatagramPacket(byteArray, byteArray.length, sc.getUser(port).getIp(), port);
 			ServerController.getInstance().getUDPsocket().send(sendPacket);
 		}
 	}

@@ -3,11 +3,14 @@ package controller;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import server.*;
 import gui.ChatServerGui;
 
 public class ServerController
 {
+	private HashMap<Integer, User> userMap = new HashMap<>();
 	private ArrayList<User> userList = new ArrayList<User>();
 	private ArrayList<User> tempUserList = new ArrayList<User>();
 	private Thread ping;
@@ -44,10 +47,25 @@ public class ServerController
 	{
 		userList.add(user);
 	}
+	
+	public void addUserToMap(User user)
+	{
+		userMap.put(user.getPortNr(), user);
+	}
 
+	public User getUser(int port)
+	{
+		return userMap.get(port);
+	}
+	
 	public ArrayList<User> getUserList()
 	{
 		return userList;
+	}
+
+	public HashMap<Integer, User> getUserMap()
+	{
+		return userMap;
 	}
 
 	public void startServer(int port)
@@ -76,6 +94,11 @@ public class ServerController
 		tempUserList.add(user);
 	}
 	
+	public void addUserRespond(int port)
+	{
+		userMap.get(port).setLastSeen();
+	}
+	
 	public void updateUserList()
 	{
 		userList.removeAll(userList);
@@ -84,6 +107,21 @@ public class ServerController
 			userList.add(user);
 		}
 		tempUserList.removeAll(tempUserList);
+	}
+	
+	public void updateUserMap()
+	{
+		ArrayList<Integer> offlineList = new ArrayList<>();
+		for(Integer port : userMap.keySet())
+		{
+			if(!userMap.get(port).isOnline())
+				offlineList.add(port);
+		}
+		for(Integer offlineUser : offlineList)
+		{
+			GUI.addMessage(userMap.get(offlineUser).getName()+" has disconnected");
+			userMap.remove(offlineUser);
+		}
 	}
 
 	public void stopServer()

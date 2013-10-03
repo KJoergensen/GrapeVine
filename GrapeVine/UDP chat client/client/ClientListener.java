@@ -43,29 +43,29 @@ public class ClientListener extends Thread
 				IPaddress = receivePacket.getAddress();
 				port = receivePacket.getPort();
 				String data = new String(receivePacket.getData(), "UTF-8").trim();
-				
-				st = new StringTokenizer(data.trim(), " ");
+				System.out.println(data);
+				st = new StringTokenizer(data.trim(), Protocol.DELIMITER);
 				String request = st.nextToken();
-				if(request.equals("PING"))
+				if(request.equals(Protocol.GET_PING))
 				{
-					byteArray = ("PING "+username).getBytes("UTF-8");
-					sendPacket = new DatagramPacket(byteArray, byteArray.length, IPaddress, port);
-					ds.send(sendPacket);
+					sendMessage(Protocol.SEND_PING+Protocol.DELIMITER+username);
 				}
-				else if(request.equals("CLIENTS"))
+				else if(request.equals(Protocol.GET_CLIENTLIST))
 				{
 					while(st.hasMoreTokens())
 						clients.add(st.nextToken().trim());		
 					clientGUI.updateClientList(clients);
 					clients.removeAll(clients);
 				}
-				else if(request.equals("JOIN"))
+				else if(request.equals(Protocol.GET_JOIN))
 				{
 					String status = st.nextToken();
-					if(status.equals("TAKEN"))
+					if(status.equals(Protocol.GET_JOIN_USERNAMETAKEN))
 						clientGUI.connectionStatusError("Username taken");
-					if(status.equals("OK"))
+					if(status.equals(Protocol.GET_JOIN_ACCEPT))
 						clientGUI.connectionStatusOK();
+					if(status.equals(Protocol.GET_JOIN_DECLINED))
+						clientGUI.connectionStatusError("Your request was declined");
 				}
 				else
 				{
@@ -74,16 +74,16 @@ public class ClientListener extends Thread
 			} catch (IOException e)
 			{
 				System.out.println("Unable to receive message.");
-//				e.printStackTrace();
+				ds.close();
 				break;
 			}
 		}
-		ds.close();
 	}
 	
-	public void clearBytes()
+	public void sendMessage(String message) throws IOException
 	{
-		for (int i = 0; i < byteArray.length; i++)
-			byteArray[i] = '\0';
+		byteArray = message.getBytes("UTF-8");
+		sendPacket = new DatagramPacket(byteArray, byteArray.length, IPaddress, port);
+		ds.send(sendPacket);
 	}
 }

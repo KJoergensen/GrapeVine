@@ -1,9 +1,8 @@
 package gui;
 
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-
 import java.awt.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,16 +10,15 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import client.ClientListener;
 
@@ -29,10 +27,6 @@ public class ChatClientGui
 	public JFrame frame;
 	private JButton btnConnect;
 	private JButton btnDisconnect;
-    private JLabel lblName;
-	private JLabel lblIPAddress;
-	private JLabel lblPort;
-	private JLabel lblChat;
 	private JLabel lblOnlineUsers;
     private JTextField txtName;
 	private JTextField txtPort;
@@ -88,11 +82,11 @@ public class ChatClientGui
 		lblOnlineUsers.setBounds(448, 47, 124, 14);
 		frame.getContentPane().add(lblOnlineUsers);
 		
-		lblChat = new JLabel("Chat");
+		JLabel lblChat = new JLabel("Chat");
 		lblChat.setBounds(10, 47, 46, 14);
 		frame.getContentPane().add(lblChat);
 		
-		lblIPAddress = new JLabel("Connect to:");
+		JLabel lblIPAddress = new JLabel("Connect to:");
 		lblIPAddress.setBounds(161, 11, 90, 14);
 		frame.getContentPane().add(lblIPAddress);
 		
@@ -108,7 +102,7 @@ public class ChatClientGui
 		frame.getContentPane().add(txtIP);
 		txtIP.setColumns(10);
 		
-		lblPort = new JLabel("Port:");
+		JLabel lblPort = new JLabel("Port:");
 		lblPort.setBounds(359, 11, 38, 14);
 		frame.getContentPane().add(lblPort);
 		
@@ -123,25 +117,35 @@ public class ChatClientGui
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				try
+				boolean legal = true;
+				for(char c : txtName.getText().toLowerCase().toCharArray())
 				{
-					UDPsocket = new DatagramSocket();
-					IPaddress = InetAddress.getByName(txtIP.getText());
-					portNumber = Integer.parseInt(txtPort.getText());
-					dataBuffer = ("JOIN "+txtName.getText()).getBytes("UTF-8");
-					sendPacket = new DatagramPacket(dataBuffer, dataBuffer.length, IPaddress, portNumber);
-					UDPsocket.send(sendPacket);
-					addMessage("Connecting to server ...");
-					startClientListener();
-				} catch (UnknownHostException e)
-				{
-					System.out.println("Unable to get IP-Address");
-//					e.printStackTrace();
-				} catch (IOException e)
-				{
-					System.out.println("Unable to connect");
-//					e.printStackTrace();
+					int tmp = c;
+					if(!(tmp > 96 && tmp < 123) || tmp==230 || tmp==248 || tmp==229) // Checking username letters
+						legal = false;
 				}
+				if(legal)
+				{
+					try
+					{
+						UDPsocket = new DatagramSocket();
+						IPaddress = InetAddress.getByName(txtIP.getText());
+						portNumber = Integer.parseInt(txtPort.getText());
+						dataBuffer = ("JOIN "+txtName.getText()).getBytes("UTF-8");
+						sendPacket = new DatagramPacket(dataBuffer, dataBuffer.length, IPaddress, portNumber);
+						UDPsocket.send(sendPacket);
+						addMessage("Connecting to server ...");
+						startClientListener();
+					} catch (UnknownHostException e)
+					{
+						addMessage("Unable to get IP-Address"+e.getMessage());
+					} catch (IOException e)
+					{
+						addMessage("Unable to connect"+e.getMessage());
+					}
+				}
+				else
+					addMessage("please use letters only");
 			}
 		});
 		btnConnect.setBounds(460, 7, 112, 23);
@@ -192,7 +196,7 @@ public class ChatClientGui
 		frame.getContentPane().add(txtChat);
 		txtChat.setColumns(10);
 		
-		lblName = new JLabel("Name:");
+		JLabel lblName = new JLabel("Name:");
 		lblName.setBounds(10, 11, 46, 14);
 		frame.getContentPane().add(lblName);
 		
@@ -202,12 +206,16 @@ public class ChatClientGui
 		frame.getContentPane().add(txtName);
 		txtName.setColumns(10);
 		
-		btnTest = new JButton("Test");
+		btnTest = new JButton("Test char");
 		btnTest.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				
+				for(char c : txtName.getText().toLowerCase().toCharArray())
+				{
+					System.out.print((int)c + " ");
+				}
+				System.out.println();
 			}
 		});
 		btnTest.setBounds(66, 38, 89, 23);
@@ -216,6 +224,18 @@ public class ChatClientGui
 		chboxPriv = new JCheckBox("Private message");
 		chboxPriv.setBounds(448, 408, 124, 23);
 		frame.getContentPane().add(chboxPriv);
+		
+		JButton btnTestInt = new JButton("Test int");
+		btnTestInt.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				System.out.println((char) Integer.parseInt(txtName.getText()));
+				System.out.println();
+			}
+		});
+		btnTestInt.setBounds(161, 38, 89, 23);
+		frame.getContentPane().add(btnTestInt);
 		
 		menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -255,7 +275,6 @@ public class ChatClientGui
 	public void connectionStatusError(String message)
 	{
 		addMessage("Error - "+message);
-//		listener.interrupt();
 	}
 	
 	public void sendPacket(String message)

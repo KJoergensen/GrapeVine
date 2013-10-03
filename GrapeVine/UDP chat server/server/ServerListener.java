@@ -1,5 +1,6 @@
 package server;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.util.StringTokenizer;
@@ -34,8 +35,8 @@ public class ServerListener extends Thread
 				port = receivePacket.getPort();
 				byteArray = receivePacket.getData();
 				String data = new String(byteArray, "UTF-8").trim();
-
-				StringTokenizer st = new StringTokenizer(data.trim());
+				System.out.println(data);
+				StringTokenizer st = new StringTokenizer(data, Protocol.DELIMITER);
 				String request = st.nextToken();
 
 				if(request.equals(Protocol.GET_PING))
@@ -44,7 +45,7 @@ public class ServerListener extends Thread
 					sc.removeUser(port);
 				else if(request.equals(Protocol.GET_JOIN))
 				{
-					String username = st.nextToken().trim();
+					String username = st.nextToken();
 					boolean usernameTaken = false;
 					for(Integer userPort : sc.getUserMap().keySet())
 						if(sc.getUser(userPort).getName().equals(username))
@@ -82,20 +83,20 @@ public class ServerListener extends Thread
 					}
 				}
 			}
-		} catch (Exception e)
+		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
 	}
 	
-	public void reply(String message) throws Exception
+	public void reply(String message) throws IOException
 	{
 		byteArray = message.getBytes("UTF-8");
 		sendPacket = new DatagramPacket(byteArray, byteArray.length, IPaddress, port);
 		sc.getUDPsocket().send(sendPacket);
 	}
 	
-	public void sendPublicMessage(String from, String message) throws Exception
+	public void sendPublicMessage(String from, String message) throws IOException
 	{
 		for(Integer port : sc.getUserMap().keySet())
 		{
@@ -105,11 +106,12 @@ public class ServerListener extends Thread
 		}
 	}
 	
-	public void sendPrivateMessage(String from, String to, String message) throws Exception
+	public void sendPrivateMessage(String from, String to, String message) throws IOException
 	{
+		User user;
 		for(Integer port : sc.getUserMap().keySet())
 		{
-			User user = sc.getUser(port);
+			user = sc.getUser(port);
 			if(user.getName().equals(to))
 			{
 				byteArray = ("Private message from "+from+": "+message).getBytes("UTF-8");

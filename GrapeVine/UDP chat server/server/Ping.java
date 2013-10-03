@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import controller.ServerController;
 
@@ -33,7 +34,7 @@ public class Ping extends Thread
 					sendPacket = new DatagramPacket(byteArray, byteArray.length, sc.getUser(port).getIp(), port);
 					sc.getUDPsocket().send(sendPacket);
 				}
-				sleep(200);
+				sleep(1000);
 				sendListToClients();
 			}
 		}catch(InterruptedException e)

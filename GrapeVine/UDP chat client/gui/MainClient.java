@@ -1,6 +1,6 @@
 package gui;
 
-public class mainTest
+public class MainClient
 {
 	public static void main(String[] args)
 	{

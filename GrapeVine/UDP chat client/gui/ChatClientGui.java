@@ -1,9 +1,9 @@
 package gui;
 
+import javax.swing.JFrame;
+import javax.swing.JTextField;
+
 import java.awt.List;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,15 +11,16 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JButton;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JCheckBox;
 
 import client.ClientListener;
 
@@ -71,9 +72,6 @@ public class ChatClientGui
 		frame = new JFrame();
 		frame.setBounds(100, 100, 596, 533);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("GrapeVine2.png")));
-		frame.setTitle("GrapeVine Chatprogram");
 		frame.getContentPane().setLayout(null);
 		
 		connectionList = new List();
@@ -129,17 +127,11 @@ public class ChatClientGui
 					UDPsocket = new DatagramSocket();
 					IPaddress = InetAddress.getByName(txtIP.getText());
 					portNumber = Integer.parseInt(txtPort.getText());
-					String message = "JOIN "+txtName.getText();
-					dataBuffer = message.getBytes("UTF-8");
+					dataBuffer = ("JOIN "+txtName.getText()).getBytes("UTF-8");
 					sendPacket = new DatagramPacket(dataBuffer, dataBuffer.length, IPaddress, portNumber);
 					UDPsocket.send(sendPacket);
-					addMessage("Connected to "+IPaddress.toString()+":"+portNumber);
-					
-					//Start chat-listener service
-					listener = new ClientListener(UDPsocket, ChatClientGui.this, txtName.getText());
-					listener.start();
-					btnConnect.setVisible(false);
-					btnDisconnect.setVisible(true);
+					addMessage("Connecting to server ...");
+					startClientListener();
 				} catch (UnknownHostException e)
 				{
 					System.out.println("Unable to get IP-Address");
@@ -174,7 +166,10 @@ public class ChatClientGui
 			{
 				String message;
 				if(chboxPriv.isSelected())
-					message = "MSG PRIVATE "+txtName.getText()+" "+txtChat.getText();
+				{
+					message = "MSG PRIVATE "+txtName.getText()+" "+connectionList.getSelectedItem()+" "+txtChat.getText();
+					addMessage("Private message to "+connectionList.getSelectedItem()+": "+txtChat.getText());
+				}
 				else
 					message = "MSG PUBLIC "+txtName.getText()+" "+txtChat.getText();
 				sendPacket(message);
@@ -229,6 +224,28 @@ public class ChatClientGui
 		menuBar.add(mnHelp);
 	}
 	
+	public void startClientListener()
+	{
+		try
+		{
+			listener = new ClientListener(UDPsocket, ChatClientGui.this, txtName.getText());
+			listener.start();
+		} catch(Exception e){System.out.println("StartClientListenerError");}
+	}
+	
+	public void connectionStatusOK()
+	{
+		addMessage("Connected to "+IPaddress.toString()+":"+portNumber);
+		btnConnect.setVisible(false);
+		btnDisconnect.setVisible(true);
+	}
+	
+	public void connectionStatusError(String message)
+	{
+		addMessage("Error - "+message);
+//		listener.interrupt();
+	}
+	
 	public void sendPacket(String message)
 	{
         try
@@ -246,9 +263,11 @@ public class ChatClientGui
 	{
     	try
     	{
-    		UDPsocket.close();
+    		sendPacket("QUIT");
     		listener.interrupt();
+    		UDPsocket.close();
     		addMessage("Connection closed");
+    		clearConnectionList();
     	}
     	catch (Exception e)
     	{
@@ -281,10 +300,15 @@ public class ChatClientGui
 	public void updateClientList(ArrayList<String> nameList)
 	{
 		clearConnectionList();
+		String selectedName = connectionList.getSelectedItem();
+		int selectedIndex=-1;
 		for(String name : nameList)
 		{
-//			addMessage(name.trim());
 			addConnectionToList(name.trim());
+			if(name.equals(selectedName))
+				selectedIndex = connectionList.getItemCount()-1;
 		}
+		if(selectedIndex!=-1)
+			connectionList.select(selectedIndex);
 	}
 }

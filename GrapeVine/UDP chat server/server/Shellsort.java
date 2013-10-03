@@ -44,13 +44,13 @@ public class Shellsort
 		return returnString;
 	}
 	
-	private static void printArray(ArrayList<String> al)
-	{
-		for (String s : al)
-		{
-			System.out.println(s);
-		}
-	}
+//	private static void printArray(ArrayList<String> al)
+//	{
+//		for (String s : al)
+//		{
+//			System.out.println(s);
+//		}
+//	}
 
 	private static int getIndex(char letter)
 	{

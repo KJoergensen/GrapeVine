@@ -7,7 +7,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class ClientListener extends Thread
@@ -19,7 +18,7 @@ public class ClientListener extends Thread
 	private InetAddress IPaddress;
 	private int port;
 	private byte[] byteArray;
-	ChatClientGui clientGUI;
+	private ChatClientGui clientGUI;
 	private ArrayList<String> clients;
 	private StringTokenizer st;
 
@@ -30,7 +29,6 @@ public class ClientListener extends Thread
 		byteArray = new byte[1024];
 		this.username = username;
 		clients = new ArrayList<String>();
-		
 	}
 
 	public void run()
@@ -39,42 +37,45 @@ public class ClientListener extends Thread
 		{
 			try
 			{
-//				clearBytes();
-				byteArray= new byte[1024];
-				System.out.println(Arrays.toString(byteArray));
+				byteArray = new byte[1024];
 				receivePacket = new DatagramPacket(byteArray, byteArray.length);
 				ds.receive(receivePacket);
 				IPaddress = receivePacket.getAddress();
 				port = receivePacket.getPort();
-				String data = new String(receivePacket.getData());
-				System.out.println(Arrays.toString(receivePacket.getData()));
+				String data = new String(receivePacket.getData(), "UTF-8");
 				
-				st = new StringTokenizer(data, " ");
+				st = new StringTokenizer(data.trim(), " ");
 				String request = st.nextToken();
-				if(request.trim().equals("PING"))
+				if(request.equals("PING"))
 				{
-					//clearBytes();
-//					client.addMessage("PONG");
 					byteArray = ("PING "+username).getBytes("UTF-8");
 					sendPacket = new DatagramPacket(byteArray, byteArray.length, IPaddress, port);
 					ds.send(sendPacket);
 				}
-				else if(request.trim().equals("CLIENTS"))
+				else if(request.equals("CLIENTS"))
 				{
 					while(st.hasMoreTokens())
 						clients.add(st.nextToken().trim());		
 					clientGUI.updateClientList(clients);
 					clients.removeAll(clients);
 				}
+				else if(request.equals("JOIN"))
+				{
+					String status = st.nextToken();
+					if(status.equals("TAKEN"))
+						clientGUI.connectionStatusError("Username taken");
+					if(status.equals("OK"))
+						clientGUI.connectionStatusOK();
+				}
 				else
 				{
-				 	clientGUI.addMessage(data);
+				 	clientGUI.addMessage(data.trim());
 				}
 			} catch (IOException e)
 			{
 				System.out.println("Unable to receive message.");
-				break;
 //				e.printStackTrace();
+				break;
 			}
 		}
 		ds.close();

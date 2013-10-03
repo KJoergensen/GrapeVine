@@ -52,7 +52,8 @@ public class ChatServerGui
 	{
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame = new JFrame();
-		frame.setBounds(100, 100, 412, 300);
+		frame.setTitle("Chat Server");
+		frame.setBounds(100, 100, 440, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		frame.setLocation(dim.width/3-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
@@ -87,7 +88,7 @@ public class ChatServerGui
 		{
 			lblLocalAddress = new JLabel("Your Local Address: Unknown");
 		}
-		lblLocalAddress.setBounds(193, 11, 193, 14);
+		lblLocalAddress.setBounds(221, 11, 193, 14);
 		frame.getContentPane().add(lblLocalAddress);
 		
 		btnStartServer = new JButton("Start Server");
@@ -110,7 +111,7 @@ public class ChatServerGui
 				}
 			}
 		});
-		btnStartServer.setBounds(276, 36, 110, 23);
+		btnStartServer.setBounds(304, 39, 110, 23);
 		frame.getContentPane().add(btnStartServer);
 		JLabel lblSocketNo = new JLabel("Socket No.");
 		lblSocketNo.setBounds(10, 43, 73, 14);
@@ -122,7 +123,7 @@ public class ChatServerGui
 		txtSocket.setColumns(10);
 		
 		chatList = new List();
-		chatList.setBounds(10, 72, 376, 180);
+		chatList.setBounds(10, 72, 404, 180);
 		frame.getContentPane().add(chatList);
 		
 		btnStopServer = new JButton("Stop Server");
@@ -136,7 +137,7 @@ public class ChatServerGui
 				btnStopServer.setVisible(false);
 			}
 		});
-		btnStopServer.setBounds(276, 36, 110, 23);
+		btnStopServer.setBounds(304, 39, 110, 23);
 		frame.getContentPane().add(btnStopServer);
 	}
 

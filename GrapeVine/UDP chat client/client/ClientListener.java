@@ -42,7 +42,7 @@ public class ClientListener extends Thread
 				ds.receive(receivePacket);
 				IPaddress = receivePacket.getAddress();
 				port = receivePacket.getPort();
-				String data = new String(receivePacket.getData(), "UTF-8");
+				String data = new String(receivePacket.getData(), "UTF-8").trim();
 				
 				st = new StringTokenizer(data.trim(), " ");
 				String request = st.nextToken();

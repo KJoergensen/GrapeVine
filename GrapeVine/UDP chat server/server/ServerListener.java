@@ -32,9 +32,8 @@ public class ServerListener extends Thread
 				IPaddress = receivePacket.getAddress();
 				port = receivePacket.getPort();
 				byteArray = receivePacket.getData();
-				String data = new String(byteArray, "UTF-8");
+				String data = new String(byteArray, "UTF-8").trim();
 				
-				byteArray = data.getBytes("UTF-8");
 				StringTokenizer st = new StringTokenizer(data.trim());
 				String request = st.nextToken();
 

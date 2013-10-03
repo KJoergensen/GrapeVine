@@ -70,6 +70,7 @@ public class ChatClientGui
 	private void initialize()
 	{
 		frame = new JFrame();
+		frame.setTitle("Chat Client");
 		frame.setBounds(100, 100, 596, 533);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);

@@ -1,5 +1,7 @@
 package server;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.util.ArrayList;
 
@@ -33,15 +35,22 @@ public class Ping extends Thread
 				sendListToClients();
 				sleep(2500);
 			}
-		}catch(Exception e)
+		}catch(InterruptedException e)
 		{
-			System.out.println("crash!");
+			System.out.println("InterruptedException in class Ping: Trying to interrupt sleeping thread");
 			interrupt();
-			e.printStackTrace();
+//			e.printStackTrace();
+		} catch (UnsupportedEncodingException e)
+		{
+			System.out.println("UnsupportedEncodingException in class Ping: Unable to convert message to byteArray!");
+		} 
+		catch (IOException e)
+		{
+			System.out.println("IOException in class Ping: Unable to send packet");
 		}
 	}
 	
-	public void sendListToClients() throws Exception
+	public void sendListToClients() throws UnsupportedEncodingException, IOException
 	{
 		ServerController.getInstance().updateUserList();
 		String clientList = "CLIENTS";

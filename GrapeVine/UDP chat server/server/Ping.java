@@ -5,8 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import controller.ServerController;
 
 public class Ping extends Thread
@@ -33,7 +31,6 @@ public class Ping extends Thread
 					byteArray = Protocol.GET_PING.getBytes("UTF-8");
 					sendPacket = new DatagramPacket(byteArray, byteArray.length, InetAddress.getByName("234.5.6.7"), 9998);
 					sc.getMulticastSocket().send(sendPacket);
-					System.out.println(Arrays.toString(byteArray));
 					sendListToClients();
 				}
 				sleep(1500);
@@ -69,7 +66,6 @@ public class Ping extends Thread
 		clearBytes();
 		byteArray = Shellsort.sort(clientList, length).getBytes("UTF-8");
 		sendPacket = new DatagramPacket(byteArray, byteArray.length, InetAddress.getByName("234.5.6.7"), 9998);
-		System.out.println(Arrays.toString(byteArray));
 		sc.getMulticastSocket().send(sendPacket);
 	}
 	

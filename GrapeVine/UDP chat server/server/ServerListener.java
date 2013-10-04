@@ -39,7 +39,7 @@ public class ServerListener extends Thread
 				String data = new String(byteArray, "UTF-8").trim();
 				StringTokenizer st = new StringTokenizer(data, Protocol.DELIMITER);
 				String request = st.nextToken();
-
+				
 				if(request.equals(Protocol.GET_PING))
 					sc.addUserRespond(port);
 				else if(request.equals(Protocol.GET_QUIT))

@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import controller.ServerController;
@@ -32,10 +33,10 @@ public class ServerListener extends Thread
 				receivePacket = new DatagramPacket(byteArray, byteArray.length);
 				sc.getUDPsocket().receive(receivePacket);
 				IPaddress = receivePacket.getAddress();
+				System.out.println(IPaddress.toString());
 				port = receivePacket.getPort();
 				byteArray = receivePacket.getData();
 				String data = new String(byteArray, "UTF-8").trim();
-				System.out.println(data);
 				StringTokenizer st = new StringTokenizer(data, Protocol.DELIMITER);
 				String request = st.nextToken();
 
@@ -94,16 +95,14 @@ public class ServerListener extends Thread
 		byteArray = message.getBytes("UTF-8");
 		sendPacket = new DatagramPacket(byteArray, byteArray.length, IPaddress, port);
 		sc.getUDPsocket().send(sendPacket);
+		System.out.println(Arrays.toString(byteArray));
 	}
 	
 	public void sendPublicMessage(String from, String message) throws IOException
 	{
-		for(Integer port : sc.getUserMap().keySet())
-		{
-			byteArray = (from+": "+message).getBytes("UTF-8");
-			sendPacket = new DatagramPacket(byteArray, byteArray.length, sc.getUser(port).getIp(), port);
-			sc.getUDPsocket().send(sendPacket);
-		}
+		byteArray = (from+": "+message).getBytes("UTF-8");
+		sendPacket = new DatagramPacket(byteArray, byteArray.length, InetAddress.getByName("234.5.6.7"), 9998);
+		sc.getMulticastSocket().send(sendPacket);
 	}
 	
 	public void sendPrivateMessage(String from, String to, String message) throws IOException

@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -10,7 +11,6 @@ import controller.ServerController;
 
 public class Ping extends Thread
 {
-	private final String PINGMSG = "PING";
 	private DatagramPacket sendPacket;
 	private byte[] byteArray;
 	private ServerController sc;
@@ -27,15 +27,16 @@ public class Ping extends Thread
 		{
 			while(true)
 			{
-				clearBytes();
-				for(Integer port : ServerController.getInstance().getUserMap().keySet())
+				if(!sc.getUserMap().keySet().isEmpty())
 				{
-					byteArray = PINGMSG.getBytes("UTF-8");
-					sendPacket = new DatagramPacket(byteArray, byteArray.length, sc.getUser(port).getIp(), port);
-					sc.getUDPsocket().send(sendPacket);
+					clearBytes();
+					byteArray = Protocol.GET_PING.getBytes("UTF-8");
+					sendPacket = new DatagramPacket(byteArray, byteArray.length, InetAddress.getByName("234.5.6.7"), 9998);
+					sc.getMulticastSocket().send(sendPacket);
+					System.out.println(Arrays.toString(byteArray));
+					sendListToClients();
 				}
-				sleep(1000);
-				sendListToClients();
+				sleep(1500);
 			}
 		}catch(InterruptedException e)
 		{
@@ -55,22 +56,21 @@ public class Ping extends Thread
 	public void sendListToClients() throws UnsupportedEncodingException, IOException
 	{
 		sc.updateUserMap();
-		ArrayList<String> clientList2 = new ArrayList<String>();
+		ArrayList<String> clientList = new ArrayList<String>();
 		int length = 4;
 		for(Integer port : sc.getUserMap().keySet())
 		{
 			User user = sc.getUser(port);
-			clientList2.add(user.getName().trim());
+			clientList.add(user.getName().trim());
 			if(user.getName().length()<length)
 				length = user.getName().length();
 		}
-		for(Integer port : sc.getUserMap().keySet())
-		{
-			clearBytes();
-			byteArray = Shellsort.sort(clientList2, length).getBytes("UTF-8");
-			sendPacket = new DatagramPacket(byteArray, byteArray.length, sc.getUser(port).getIp(), port);
-			ServerController.getInstance().getUDPsocket().send(sendPacket);
-		}
+		
+		clearBytes();
+		byteArray = Shellsort.sort(clientList, length).getBytes("UTF-8");
+		sendPacket = new DatagramPacket(byteArray, byteArray.length, InetAddress.getByName("234.5.6.7"), 9998);
+		System.out.println(Arrays.toString(byteArray));
+		sc.getMulticastSocket().send(sendPacket);
 	}
 	
 	public void clearBytes()

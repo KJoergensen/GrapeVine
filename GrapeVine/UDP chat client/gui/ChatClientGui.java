@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import client.ClientListener;
+import client.MessageListener;
 
 public class ChatClientGui
 {
@@ -45,7 +46,8 @@ public class ChatClientGui
     private DatagramPacket sendPacket;
     private int portNumber;
     private InetAddress IPaddress;
-    private ClientListener listener;
+    private Thread listener;
+    private Thread messageListener;
     private JButton btnTest;
     private JCheckBox chboxPriv;
 
@@ -253,8 +255,10 @@ public class ChatClientGui
 	{
 		try
 		{
-			listener = new ClientListener(UDPsocket, ChatClientGui.this, txtName.getText());
+			listener = new Thread (new ClientListener(UDPsocket, ChatClientGui.this, txtName.getText()));
 			listener.start();
+			messageListener = new Thread(new MessageListener(IPaddress, portNumber, ChatClientGui.this, UDPsocket));
+			messageListener.start();
 		} catch(Exception e){System.out.println("StartClientListenerError");}
 	}
 	
@@ -289,6 +293,7 @@ public class ChatClientGui
     	{
     		sendPacket("QUIT");
     		listener.interrupt();
+    		messageListener.interrupt();
     		UDPsocket.close();
     		addMessage("Connection closed");
     		clearConnectionList();

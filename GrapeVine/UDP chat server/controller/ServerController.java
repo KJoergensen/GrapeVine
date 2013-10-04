@@ -1,6 +1,8 @@
 package controller;
 
+import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +15,7 @@ public class ServerController
 	private HashMap<Integer, User> userMap = new HashMap<>();
 	private Thread ping;
 	private DatagramSocket UDPsocket;
+	private MulticastSocket ms;
 	private ServerListener listener;
 	private ChatServerGui GUI;
 
@@ -41,9 +44,15 @@ public class ServerController
 		return UDPsocket;
 	}
 	
+	public MulticastSocket getMulticastSocket()
+	{
+		return ms;
+	}
+	
 	public void addUserToMap(User user)
 	{
 		userMap.put(user.getPortNr(), user);
+//		ms.joinGroup(user.getIp());
 	}
 
 	public User getUser(int port)
@@ -60,6 +69,7 @@ public class ServerController
 	{
 		try
 		{
+			ms = new MulticastSocket();
 			UDPsocket = new DatagramSocket(port);
 			listener = new ServerListener();
 			ping = new Thread(new Ping());
@@ -73,12 +83,20 @@ public class ServerController
 		{
 			GUI.addMessage("Unable to start server on socket "+port+". Please try another");
 			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
 	public void addUserRespond(int port)
 	{
-		userMap.get(port).setLastSeen();
+		try {
+			userMap.get(port).setLastSeen();
+		} catch (NullPointerException e) 
+		{
+			System.out.println("User does not exist");
+		}
 	}
 	
 	public void updateUserMap()
@@ -93,8 +111,13 @@ public class ServerController
 	
 	public void removeUser(Integer userPort)
 	{
-		GUI.addMessage(userMap.get(userPort).getName()+" has disconnected");
-		userMap.remove(userPort);
+		try {
+			GUI.addMessage(userMap.get(userPort).getName()+" has disconnected");
+			userMap.remove(userPort);
+		} catch (NullPointerException e) {
+			System.out.println("User does not exist");
+			e.printStackTrace();
+		}
 	}
 
 	public void stopServer()

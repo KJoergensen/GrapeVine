@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class MessageListener extends Thread 
+public class MulticastListener extends Thread 
 {
 	private String username;
 	private DatagramSocket dSocket;
@@ -24,7 +24,7 @@ public class MessageListener extends Thread
 	private ArrayList<String> clients;
 	private ChatClientGui clientGUI;
 	
-	public MessageListener(InetAddress IPaddress, int port, ChatClientGui clientGUI, DatagramSocket dSocket)
+	public MulticastListener(InetAddress IPaddress, int port, ChatClientGui clientGUI, DatagramSocket dSocket)
 	{
 		this.IPaddress = IPaddress;
 		this.port = port;

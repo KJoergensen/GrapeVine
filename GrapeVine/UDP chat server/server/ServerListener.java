@@ -33,7 +33,6 @@ public class ServerListener extends Thread
 				receivePacket = new DatagramPacket(byteArray, byteArray.length);
 				sc.getUDPsocket().receive(receivePacket);
 				IPaddress = receivePacket.getAddress();
-				System.out.println(IPaddress.toString());
 				port = receivePacket.getPort();
 				byteArray = receivePacket.getData();
 				String data = new String(byteArray, "UTF-8").trim();
@@ -56,6 +55,7 @@ public class ServerListener extends Thread
 					else if(!usernameTaken)
 					{
 						reply(Protocol.SEND_JOIN_ACCEPT);
+						System.out.println("join test");
 						sc.addUserToMap(new User(username, IPaddress, port));
 						sc.getGUI().addMessage("New connection: "+username);
 					}
@@ -113,7 +113,8 @@ public class ServerListener extends Thread
 			user = sc.getUser(port);
 			if(user.getName().equals(to))
 			{
-				byteArray = ("Private message from "+from+": "+message).getBytes("UTF-8");
+//				byteArray = ("MSG "+from+" Private message from "+from+": "+message).getBytes("UTF-8");
+				byteArray = ("MSG "+from+" "+from+": "+message).getBytes("UTF-8");
 				sendPacket = new DatagramPacket(byteArray, byteArray.length, user.getIp(), user.getPortNr());
 				sc.getUDPsocket().send(sendPacket);
 				break;

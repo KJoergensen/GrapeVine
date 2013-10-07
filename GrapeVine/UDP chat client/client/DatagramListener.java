@@ -8,7 +8,7 @@ import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class ClientListener extends Thread
+public class DatagramListener extends Thread
 {
 	private DatagramSocket ds;
 	private DatagramPacket receivePacket;
@@ -16,7 +16,7 @@ public class ClientListener extends Thread
 	private ChatClientGui clientGUI;
 	private StringTokenizer st;
 
-	public ClientListener(DatagramSocket ds, ChatClientGui client, String username)
+	public DatagramListener(DatagramSocket ds, ChatClientGui client, String username)
 	{
 		this.clientGUI = client;
 		this.ds = ds;
@@ -34,20 +34,20 @@ public class ClientListener extends Thread
 				receivePacket = new DatagramPacket(byteArray, byteArray.length);
 				ds.receive(receivePacket);
 				String data = new String(receivePacket.getData(), "UTF-8").trim();
-				st = new StringTokenizer(data.trim(), Protocol.DELIMITER);
+				st = new StringTokenizer(data, Protocol.DELIMITER);
 				String request = st.nextToken();
 				if(request.equals(Protocol.GET_JOIN))
 				{
-					String status = st.nextToken();
-					if(status.equals(Protocol.GET_JOIN_USERNAMETAKEN))
+					request = st.nextToken();
+					if(request.equals(Protocol.GET_JOIN_USERNAMETAKEN))
 						clientGUI.connectionStatusError("Username taken");
-					if(status.equals(Protocol.GET_JOIN_ACCEPT))
+					if(request.equals(Protocol.GET_JOIN_ACCEPT))
 						clientGUI.connectionStatusOK();
-					if(status.equals(Protocol.GET_JOIN_DECLINED))
+					if(request.equals(Protocol.GET_JOIN_DECLINED))
 						clientGUI.connectionStatusError("Your request was declined");
 				}
 				else
-				 	clientGUI.addMessage(data.trim());
+				 	clientGUI.addMessage(data);
 			} catch (IOException e)
 			{
 				System.out.println("Unable to receive Datagram.");

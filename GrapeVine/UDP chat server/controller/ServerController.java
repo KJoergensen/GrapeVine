@@ -52,7 +52,6 @@ public class ServerController
 	public void addUserToMap(User user)
 	{
 		userMap.put(user.getPortNr(), user);
-//		ms.joinGroup(user.getIp());
 	}
 
 	public User getUser(int port)

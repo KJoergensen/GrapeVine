@@ -50,8 +50,8 @@ public class User
 
 	public boolean isOnline()
 	{
-		System.out.println("LAST SEEN: "+(new Date().getTime()-lastSeen));
-		if((new Date().getTime()-lastSeen)<5000)
+		System.out.println("LAST SEEN: "+(double)(new Date().getTime()-lastSeen/1000)+ " seconds ago");
+		if((new Date().getTime()-lastSeen)<4000)
 			return true;
 		else
 			return false;

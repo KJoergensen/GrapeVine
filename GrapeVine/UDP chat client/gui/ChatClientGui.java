@@ -3,6 +3,8 @@ package gui;
 import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -20,8 +22,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import client.ClientListener;
-import client.MessageListener;
+import client.DatagramListener;
+import client.MulticastListener;
 
 public class ChatClientGui
 {
@@ -46,9 +48,8 @@ public class ChatClientGui
     private DatagramPacket sendPacket;
     private int portNumber;
     private InetAddress IPaddress;
-    private Thread listener;
-    private Thread messageListener;
-    private JButton btnTest;
+    private Thread datagramListener;
+    private Thread multicastListener;
     private JCheckBox chboxPriv;
 
 	/**
@@ -65,8 +66,15 @@ public class ChatClientGui
 	 */
 	private void initialize()
 	{
-		frame = new JFrame();
-		frame.setTitle("Chat Client");
+		frame = new JFrame("Chat Client");
+		frame.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+            	disconnect();
+            }
+        });
 		frame.setBounds(100, 100, 596, 533);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
@@ -79,7 +87,7 @@ public class ChatClientGui
 		chatList.setBounds(10, 67, 432, 364);
 		frame.getContentPane().add(chatList);
 		
-		lblOnlineUsers = new JLabel("Online User(s): 0");
+		lblOnlineUsers = new JLabel("Offline");
 		lblOnlineUsers.setHorizontalAlignment(SwingConstants.CENTER);
 		lblOnlineUsers.setBounds(448, 47, 124, 14);
 		frame.getContentPane().add(lblOnlineUsers);
@@ -130,7 +138,7 @@ public class ChatClientGui
 						sendPacket = new DatagramPacket(dataBuffer, dataBuffer.length, IPaddress, portNumber);
 						UDPsocket.send(sendPacket);
 						addMessage("Connecting to server ...");
-						startClientListener();
+						startDatagramListener();
 					} catch (UnknownHostException e)
 					{
 						addMessage("Unable to get IP-Address"+e.getMessage());
@@ -196,41 +204,14 @@ public class ChatClientGui
 		frame.getContentPane().add(lblName);
 		
 		txtName = new JTextField();
-		txtName.setText("Benjamin");
+		txtName.setText("Testsubject");
 		txtName.setBounds(52, 8, 90, 20);
 		frame.getContentPane().add(txtName);
 		txtName.setColumns(10);
 		
-		btnTest = new JButton("Test char");
-		btnTest.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
-				for(char c : txtName.getText().toLowerCase().toCharArray())
-				{
-					System.out.print((int)c + " ");
-				}
-				System.out.println();
-			}
-		});
-		btnTest.setBounds(66, 38, 89, 23);
-		frame.getContentPane().add(btnTest);
-		
 		chboxPriv = new JCheckBox("Private message");
 		chboxPriv.setBounds(448, 408, 124, 23);
 		frame.getContentPane().add(chboxPriv);
-		
-		JButton btnTestInt = new JButton("Test int");
-		btnTestInt.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
-				System.out.println((char) Integer.parseInt(txtName.getText()));
-				System.out.println();
-			}
-		});
-		btnTestInt.setBounds(161, 38, 89, 23);
-		frame.getContentPane().add(btnTestInt);
 		
 		menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -251,19 +232,33 @@ public class ChatClientGui
 		menuBar.add(mnHelp);
 	}
 	
-	public void startClientListener()
+	public void startDatagramListener()
 	{
 		try
 		{
-			listener = new Thread (new ClientListener(UDPsocket, ChatClientGui.this, txtName.getText()));
-			listener.start();
-			messageListener = new Thread(new MessageListener(IPaddress, portNumber, ChatClientGui.this, UDPsocket));
-			messageListener.start();
-		} catch(Exception e){System.out.println("StartClientListenerError");}
+			datagramListener = new Thread (new DatagramListener(UDPsocket, ChatClientGui.this, txtName.getText()));
+			datagramListener.start();
+		} catch(Exception e)
+		{
+			System.out.println("error - startDatagramListener");
+		}
+	}
+	
+	public void startMulticastListener()
+	{
+		try
+		{
+			multicastListener = new Thread(new MulticastListener(IPaddress, portNumber, ChatClientGui.this, UDPsocket));
+			multicastListener.start();
+		} catch(Exception e)
+		{
+			System.out.println("error - startMulticastListener");
+		}
 	}
 	
 	public void connectionStatusOK()
 	{
+		startMulticastListener();
 		addMessage("Connected to "+IPaddress.toString()+":"+portNumber);
 		btnConnect.setVisible(false);
 		btnDisconnect.setVisible(true);
@@ -292,11 +287,12 @@ public class ChatClientGui
     	try
     	{
     		sendPacket("QUIT");
-    		listener.interrupt();
-    		messageListener.interrupt();
+    		datagramListener.interrupt();
+    		multicastListener.interrupt();
     		UDPsocket.close();
     		addMessage("Connection closed");
     		clearConnectionList();
+    		lblOnlineUsers.setText("Offline");
     	}
     	catch (Exception e)
     	{

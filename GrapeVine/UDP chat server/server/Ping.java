@@ -27,13 +27,13 @@ public class Ping extends Thread
 			{
 				if(!sc.getUserMap().keySet().isEmpty())
 				{
-					clearBytes();
+					byteArray = new byte[1024];
 					byteArray = Protocol.GET_PING.getBytes("UTF-8");
 					sendPacket = new DatagramPacket(byteArray, byteArray.length, InetAddress.getByName("234.5.6.7"), 9998);
 					sc.getMulticastSocket().send(sendPacket);
 					sendListToClients();
 				}
-				sleep(1500);
+				sleep(1000);
 			}
 		}catch(InterruptedException e)
 		{

@@ -7,6 +7,11 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import controller.ServerController;
 
+/**
+ * Thread class that is used to continuously update the online users.
+ * 
+ * Updates every second.
+ */
 public class Ping extends Thread
 {
 	private DatagramPacket sendPacket;
@@ -50,6 +55,9 @@ public class Ping extends Thread
 		}
 	}
 	
+	/**
+	 * Sending the user list to the clients
+	 */
 	public void sendListToClients() throws UnsupportedEncodingException, IOException
 	{
 		sc.updateUserMap();
@@ -64,11 +72,16 @@ public class Ping extends Thread
 		}
 		
 		clearBytes();
+		// Sorting the clientlist using Shellsort
 		byteArray = Shellsort.sort(clientList, length).getBytes("UTF-8");
 		sendPacket = new DatagramPacket(byteArray, byteArray.length, InetAddress.getByName("234.5.6.7"), 9998);
+		// Using the ServerController to send the datagrampacket
 		sc.getMulticastSocket().send(sendPacket);
 	}
 	
+	/**
+	 * Clearing the bytearray
+	 */
 	public void clearBytes()
 	{
 		for (int i = 0; i < byteArray.length; i++)

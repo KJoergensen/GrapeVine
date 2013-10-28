@@ -2,6 +2,10 @@ package server;
 
 import java.util.ArrayList;
 
+/**
+ * Class used to sort an ArrayList of clients
+ *
+ */
 public class Shellsort
 {
 	public static String sort(ArrayList<String> unsorted, int length)

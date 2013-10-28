@@ -90,6 +90,9 @@ public class ServerListener extends Thread
 		}
 	}
 	
+	/**
+	 * Method that sends the @param message as a reply
+	 */
 	public void reply(String message) throws IOException
 	{
 		byteArray = message.getBytes("UTF-8");
@@ -98,6 +101,9 @@ public class ServerListener extends Thread
 		System.out.println(Arrays.toString(byteArray));
 	}
 	
+	/**
+	 * Method that sends @param message and display from who @param from
+	 */
 	public void sendPublicMessage(String from, String message) throws IOException
 	{
 		byteArray = (from+": "+message).getBytes("UTF-8");
@@ -105,6 +111,9 @@ public class ServerListener extends Thread
 		sc.getMulticastSocket().send(sendPacket);
 	}
 	
+	/**
+	 * Sending a @param message privately between @param from and @param to
+	 */
 	public void sendPrivateMessage(String from, String to, String message) throws IOException
 	{
 		User user;
@@ -113,7 +122,6 @@ public class ServerListener extends Thread
 			user = sc.getUser(port);
 			if(user.getName().equals(to))
 			{
-//				byteArray = ("MSG "+from+" Private message from "+from+": "+message).getBytes("UTF-8");
 				byteArray = ("MSG "+from+" "+from+": "+message).getBytes("UTF-8");
 				sendPacket = new DatagramPacket(byteArray, byteArray.length, user.getIp(), user.getPortNr());
 				sc.getUDPsocket().send(sendPacket);

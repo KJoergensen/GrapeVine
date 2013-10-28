@@ -1,5 +1,8 @@
 package server;
 
+/**
+ * The protocol used for the UDP chat program
+ */
 public class Protocol
 {
 	final static String DELIMITER = " ";

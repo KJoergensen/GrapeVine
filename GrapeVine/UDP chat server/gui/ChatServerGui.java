@@ -51,13 +51,13 @@ public class ChatServerGui
 		
 		JLabel lblIPAddress;
 		try
-		{
+		{ // Getting IP address
 			BufferedReader in = new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream()));
 			String ip = in.readLine();
                 	
 			lblIPAddress = new JLabel("Your IP Address: "+ip);
 		} catch (IOException e1)
-		{
+		{ // If error occurs
 			lblIPAddress = new JLabel("Your IP Address: Unknown");
 		}
 		lblIPAddress.setBounds(10, 11, 213, 14);
@@ -66,11 +66,11 @@ public class ChatServerGui
 
 		JLabel lblLocalAddress;
 		try
-		{
+		{ // Getting local IP address
 			lblLocalAddress = new JLabel("Your Local Address: "+InetAddress.getLocalHost().getHostAddress());
 			lblLocalAddress.setHorizontalAlignment(SwingConstants.RIGHT);
 		} catch (IOException e1)
-		{
+		{ // If error occurs
 			lblLocalAddress = new JLabel("Your Local Address: Unknown");
 		}
 		lblLocalAddress.setBounds(221, 11, 193, 14);
@@ -80,7 +80,7 @@ public class ChatServerGui
 		btnStartServer.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent arg0) 
-			{
+			{ // Getting instance og Singleton controller class
 				ServerController.getInstance().startServer(Integer.parseInt(txtSocket.getText()));
 			}
 		});
@@ -103,7 +103,7 @@ public class ChatServerGui
 		btnStopServer.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
-			{
+			{ // Ending session
 				ServerController.getInstance().stopServer();
 			}
 		});
@@ -111,12 +111,18 @@ public class ChatServerGui
 		frame.getContentPane().add(btnStopServer);
 	}
 
+    /**
+     * Method that adds the input to the chatlist
+     */
     public void addMessage(String message)
-    {
+    { 
     	chatList.add(message);
     	gotoBottom();
     }
 	
+	/**
+	 * Method that makes shure focus is always is in the bottom of chatlist
+	 */
 	public void gotoBottom()
 	{
 		chatList.select(chatList.getItemCount() - 1);
